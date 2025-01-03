@@ -56,6 +56,7 @@ export default function App() {
     const [watched, setWatched] = useState([]);
     const [loading,setLoading]=useState(false);
     const [error,setError]=useState('');
+    
     const APIKEY = "9608a144";
    
     useEffect(function(){
@@ -63,22 +64,26 @@ export default function App() {
        async function fetchMovies(){
         setLoading(true);
       try{
-        const res = await fetch(`http://www.omdbapi.com/?apikey=${APIKEY}&s=hulk`);
+        const res = await fetch(`http://www.omdbapi.com/?apikey=${APIKEY}&s=hulkg454`);
         // console.log(res);
         if(!res.ok) throw new Error("Something went wrong with fetchig movies");
 
         
         const data=await res.json();
+        if(data.Response==='False') throw new Error('movie not found')
+        console.log(data);
         
    
         setMovies(data.Search)  
-        console.log(data.Search);
-        setLoading(false)
+        // console.log(data.Search);
+       
       }catch(err){
-         console.log(err.message);
-         
+        //  console.log(err.message);
+         setError(err.message)
+      }finally{
+         setLoading(false)
       }
-        // console.log(movies);
+       
       }
       fetchMovies();
     },[])
@@ -96,7 +101,11 @@ export default function App() {
         <>
           {/* <MainBox ele={<MovieUlList movies={movies} />} /> */}
           <MovieBox>
-            {loading?<Loader/>:<MovieUlList movies={movies} />}
+
+            {/* {loading?<Loader/>:<MovieUlList movies={movies} />} */}
+            {loading && <Loader/>}
+            {!loading && !error &&<MovieUlList movies={movies}/>}
+            {error && <ErrorBx message={error}/>}
           </MovieBox>
           <MovieBox>
             <>
@@ -109,6 +118,9 @@ export default function App() {
       </MainBox>
     </>
   );
+}
+function ErrorBx({message}){
+  return<p className="error"><span>🛑</span>{message}</p>
 }
 function Logo() {
   return (
